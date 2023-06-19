@@ -23,29 +23,57 @@ async function run() {
     const reviewCollection = client.db("facebookClone").collection("comments");
     const aboutCollection = client.db("facebookClone").collection("aboutInfo");
 
+    // Get all post
     app.get("/posts", async (req, res) => {
       const query = {};
       const cursor = serviceCollection.find(query);
       const posts = await cursor.toArray();
       res.send(posts);
     });
+
+    // Get single post for post details
+
     app.get("/post/:id", async (req, res) => {
       const id = req.params.id;
       const query = { _id: ObjectId(id) };
       const post = await serviceCollection.findOne(query);
       res.send(post);
     });
+
+    // Post single post
+
     app.post("/post", async (req, res) => {
       const post = req.body;
       const result = await serviceCollection.insertOne(post);
       res.send(result);
     });
 
+    // Get all posts by login user
+
+    app.get("/userposts", async (req, res) => {
+      let query = {};
+
+      if (req.query.email) {
+        query = {
+          email: req.query.email,
+        };
+      }
+
+      const cursor = serviceCollection.find(query);
+      const userPosts = await cursor.toArray();
+      res.send(userPosts);
+    });
+
+    // Post comment
+
     app.post("/comment", async (req, res) => {
       const comment = req.body;
       const result = await reviewCollection.insertOne(comment);
       res.send(result);
     });
+
+    // Get all comment by single post
+
     app.get("/comment/:id", async (req, res) => {
       const id = req.params.id;
       const query = { postId: id };
@@ -53,15 +81,19 @@ async function run() {
       const comments = await cursor.toArray();
       res.send(comments);
     });
+
+    // Post about information
+
     app.post("/about", async (req, res) => {
       const post = req.body;
       const result = await aboutCollection.insertOne(post);
       res.send(result);
     });
 
+    // Get about information by login user
+
     app.get("/about", async (req, res) => {
       let query = {};
-
       if (req.query.email) {
         query = {
           email: req.query.email,
